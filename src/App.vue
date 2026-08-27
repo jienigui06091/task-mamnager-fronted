@@ -86,8 +86,9 @@ async function loadTasks() {
   error.value = ''
   try {
     const result = await api.getTasks(page.value, PAGE_SIZE)
-    tasks.value = result.data || []
-    total.value = result.total || 0
+    const pageData = result.data || {}
+    tasks.value = Array.isArray(pageData.list) ? pageData.list : []
+    total.value = Number(pageData.total) || 0
     selectedIds.value = new Set()
   } catch (requestError) {
     error.value = requestError.message
