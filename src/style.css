@@ -41,6 +41,8 @@ input::placeholder { color: #98a39e; }
 .button-primary:hover:not(:disabled) { background: #12684e; }
 .button-secondary { color: #304139; border-color: #d8e1dc; background: #fff; }
 .button-secondary:hover { background: #f4f7f5; }
+.button-danger { color: #fff; background: #c84c45; }
+.button-danger:hover:not(:disabled) { background: #ae3e39; }
 .button-full { width: 100%; height: 46px; margin-top: 6px; justify-content: space-between; padding: 0 15px 0 18px; }
 .auth-switch { margin: 27px 0 0; color: #76827d; font-size: 13px; text-align: center; }
 .auth-switch button { border: 0; padding: 0; color: #117357; background: transparent; font-weight: 700; }
@@ -118,6 +120,7 @@ input::placeholder { color: #98a39e; }
 .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 25px; }
 .modal-header h2 { margin: 0; color: #20332b; font-size: 22px; }
 .modal-field { font-size: 13px; }
+.modal-copy { margin: -7px 0 0; color: #64746c; font-size: 14px; line-height: 1.65; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 26px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 

@@ -42,6 +42,8 @@ const selectedIds = ref(new Set())
 const editingTask = ref(null)
 const editTitle = ref('')
 const saving = ref(false)
+const deleteConfirmOpen = ref(false)
+const deleting = ref(false)
 const notice = ref('')
 
 const visibleTasks = computed(() => {
@@ -217,17 +219,30 @@ function toggleAll() {
   selectedIds.value = new Set(visibleTasks.value.map((task) => task.id))
 }
 
-async function deleteSelected() {
+function requestDeleteSelected() {
+  if (!selectedIds.value.size || deleting.value) return
+  deleteConfirmOpen.value = true
+}
+
+function closeDeleteConfirm() {
+  if (deleting.value) return
+  deleteConfirmOpen.value = false
+}
+
+async function confirmDeleteSelected() {
   const ids = [...selectedIds.value]
   if (!ids.length) return
-  if (!window.confirm(`确定删除选中的 ${ids.length} 个任务吗？`)) return
+  deleting.value = true
   try {
     await api.deleteTasks(ids)
     if (tasks.value.length === ids.length && page.value > 1) page.value -= 1
     await loadTasks()
     showNotice('所选任务已删除')
+    deleteConfirmOpen.value = false
   } catch (requestError) {
     error.value = requestError.message
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -380,7 +395,7 @@ onMounted(() => {
 
         <div v-if="selectedIds.size" class="bulk-bar">
           <span>已选择 {{ selectedIds.size }} 项</span>
-          <button class="text-button danger" type="button" @click="deleteSelected">
+          <button class="text-button danger" type="button" @click="requestDeleteSelected">
             <Trash2 :size="16" /> 删除所选
           </button>
           <button class="icon-button small" type="button" title="取消选择" @click="selectedIds = new Set()">
@@ -466,6 +481,29 @@ onMounted(() => {
           <button class="button button-secondary" type="button" @click="closeEditor">取消</button>
           <button class="button button-primary" type="button" :disabled="!editTitle.trim() || saving" @click="saveTask">
             {{ saving ? '保存中' : '保存更改' }}
+          </button>
+        </div>
+      </section>
+    </div>
+    <div v-if="deleteConfirmOpen" class="modal-backdrop" @click.self="closeDeleteConfirm">
+      <section class="modal" role="alertdialog" aria-modal="true" aria-labelledby="delete-title" aria-describedby="delete-description">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">DELETE TASKS</p>
+            <h2 id="delete-title">确认删除任务</h2>
+          </div>
+          <button class="icon-button" type="button" title="关闭" :disabled="deleting" @click="closeDeleteConfirm">
+            <X :size="18" />
+          </button>
+        </div>
+        <p id="delete-description" class="modal-copy">
+          确定删除选中的 {{ selectedIds.size }} 个任务吗？此操作无法撤销。
+        </p>
+        <div class="modal-actions">
+          <button class="button button-secondary" type="button" :disabled="deleting" autofocus @click="closeDeleteConfirm">取消</button>
+          <button class="button button-danger" type="button" :disabled="deleting" @click="confirmDeleteSelected">
+            <Trash2 :size="16" />
+            {{ deleting ? '正在删除...' : '删除任务' }}
           </button>
         </div>
       </section>
